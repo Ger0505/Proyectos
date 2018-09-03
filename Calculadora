@@ -1,0 +1,175 @@
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct nodo Nodo;
+typedef Nodo *pelemento;
+struct nodo{
+	int dato;
+	pelemento siguiente;
+	pelemento anterior;
+};
+typedef struct listadoble ListDob;
+struct listadoble{
+	pelemento inicio;
+	pelemento final;
+};
+void insertar(ListDob*lista1,int dato);
+void visualizarVista(ListDob nlista);
+int listaVacia();
+void suma(ListDob list1,ListDob list2);
+void resta(ListDob list1,ListDob list2);
+pelemento nuevoElemento();
+pelemento inicio=NULL;
+pelemento final=NULL;
+int main(){
+	int a,b,n,opc,c,d;
+	ListDob Lista1,Lista2;
+	Lista1.inicio=NULL;
+	Lista2.inicio=NULL;
+	Lista1.final=NULL;
+	Lista2.final=NULL;
+	printf("1.- Suma\n");
+	printf("2.- Resta\n");
+	printf("Escoger Operacion:");
+	do{
+		scanf("%i",&opc);
+	}while(opc<1 | opc>2);
+	switch(opc){
+		case 1:
+				printf("Ingresar numero 1:");
+	scanf("%i",&a);
+	do{
+		n=a%10;
+		a=a/10;
+		insertar(&Lista1,n);
+	}while(a!=0);
+	printf("Ingresar numero 2:");
+	scanf("%i",&b);
+	do{
+		n=b%10;
+		b=b/10;
+		insertar(&Lista2,n);
+	}while(b!=0);
+	printf("\n");
+	suma(Lista1,Lista2);
+			break;
+		case 2:
+			printf("Ingresar numero 1:");
+	scanf("%i",&a);
+	c=a;
+	do{
+		n=a%10;
+		a=a/10;
+		insertar(&Lista1,n);
+	}while(a!=0);
+	printf("Ingresar numero 2:");
+	scanf("%i",&b);
+	d=b;
+	do{
+		n=b%10;
+		b=b/10;
+		insertar(&Lista2,n);
+	}while(b!=0);
+	printf("\n");
+	if(c>d){
+		resta(Lista1,Lista2);
+	}else{
+		printf("-");
+		resta(Lista2,Lista1);
+	}
+			break;
+	}
+}
+
+void insertar(ListDob*lista,int dato){
+	pelemento q=nuevoElemento();
+	q->dato=dato;
+	q->anterior=NULL;
+	q->siguiente=NULL;
+	if((lista->inicio==NULL) && (lista->final==NULL)){ 
+		lista->inicio=q;
+		lista->final=q;
+		return;
+	}else{
+		q->siguiente=lista->inicio;
+		lista->inicio->anterior=q;
+		lista->inicio=q;
+	}
+}
+
+
+void visualizarVista(ListDob nlista){
+	if(nlista.inicio!=NULL){
+		pelemento aux=nlista.inicio;
+		while(aux!=NULL){
+			printf("%i",aux->dato);
+			aux=aux->siguiente;
+		}
+    }
+}
+void suma(ListDob list1,ListDob list2){
+	pelemento aux1= list1.final;
+	pelemento aux2= list2.final;
+	ListDob resultado;
+    resultado.inicio=NULL;
+	resultado.final=NULL;
+	int acarreo=0;
+	int digito=0;
+	while((aux1!=NULL) && (aux2!=NULL)){
+		int suma=aux1->dato + aux2->dato + acarreo;
+		acarreo=suma/10;
+		digito=suma%10;
+		insertar(&resultado,digito);
+		aux1=aux1->anterior;
+		aux2=aux2->anterior;
+	}
+	pelemento temp=aux1==NULL ? aux2:aux1;
+	while(temp!=NULL){
+		int suma=temp->dato+acarreo;
+		acarreo=suma/10;
+		digito=suma%10;
+		insertar(&resultado,digito);
+		temp=temp->anterior;
+	}
+	if(acarreo>0){
+		insertar(&resultado,acarreo);		
+	}
+	visualizarVista(resultado);
+}
+
+pelemento nuevoElemento(){
+	pelemento q=(pelemento)malloc(sizeof(Nodo));
+	return q;
+}
+void resta(ListDob list1,ListDob list2){
+	pelemento aux1= list1.final;
+	pelemento aux2= list2.final;
+	pelemento acarreo= list1.final;
+	ListDob resultado;
+    resultado.inicio=NULL;
+	resultado.final=NULL;
+	while((aux1!=NULL) && (aux2!=NULL)){
+		if(aux2>aux1){
+			while(aux1->dato<aux2->dato){
+			acarreo=acarreo->anterior;
+			if(acarreo->dato==0){
+				acarreo->dato=9;
+			}else{
+				acarreo->dato--;
+				aux1->dato+=10;
+			}
+			}
+		}
+		int resta=aux1->dato - aux2->dato;
+		insertar(&resultado,resta);
+		aux1=aux1->anterior;
+		aux2=aux2->anterior;
+		acarreo=aux1;
+	}
+	pelemento temp=aux1==NULL ? aux2:aux1;
+	while(temp!=NULL){
+		int resta=temp->dato;
+		insertar(&resultado,resta);
+		temp=temp->anterior;
+	}
+	visualizarVista(resultado);
+}
