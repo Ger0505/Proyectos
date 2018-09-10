@@ -1,0 +1,241 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define Nodo struct nodo
+#define List struct lista
+Nodo{
+	int coeficiente;
+	int exponente;
+	int signo;
+	Nodo*siguiente;
+};
+
+List{
+	Nodo*inicio;
+	Nodo*final;
+};
+
+void insertarMonomio(List*lista);
+void visualizarVista(List nlista);
+Nodo*nuevoElemento();
+void unir(List*lista1,List*lista2);
+void simplificar(List*lista1);
+void ordenar(List lista);
+void cambiarSigno(List*lista);
+
+int main(){
+	List Lista1,Lista2,resultado;
+	Lista1.inicio=Lista1.final=NULL;
+	Lista2.inicio=Lista2.final=NULL;
+	resultado.inicio=resultado.final=NULL;
+	int Num,i,Ope;
+	printf("Polinomios con una sola literal\n");
+	printf("El coeficiente puede ser positivo o negativo\n");
+		printf("-----------\n");
+	printf("Operacion\n");
+	printf("1. Suma\n");
+	printf("2. Resta\n");
+	do{
+		printf("Escoger Operacion (1-2):");
+		scanf("%i",&Ope);
+	}while(Ope<1 | Ope>2);
+	printf("-----------\n");
+	do{
+		printf("Primer polinomio\n");
+		printf("No. de monomios:");
+		scanf("%i",&Num);
+	}while(Num<1);
+	for(i=0;i<Num;i++){
+		insertarMonomio(&Lista1);
+	}
+	printf("\n");
+	printf("Segundo polinomio\n");
+	do{
+		printf("No. de monomios:");
+		scanf("%i",&Num);
+	}while(Num<1);
+	for(i=0;i<Num;i++){
+		insertarMonomio(&Lista2);
+	}
+	printf("\n");
+	printf("Polinomio 1:");
+	visualizarVista(Lista1);
+	printf("\n");
+	printf("Polinomio 2:");
+	visualizarVista(Lista2);
+	if(Ope==2){
+		cambiarSigno(&Lista2);
+	}
+	unir(&Lista1,&Lista2);
+	simplificar(&Lista1);
+	printf("\n");
+	ordenar(Lista1);
+}
+
+
+void ordenar(List lista){
+	if(lista.inicio!=NULL){
+		Nodo*pivote=lista.inicio;
+		Nodo*apivote=NULL;
+		Nodo*aux=lista.inicio->siguiente;
+		Nodo*max=lista.inicio;
+		Nodo*ant=lista.inicio;
+		while(pivote!=NULL){
+			while(aux!=NULL){
+				if(aux->exponente>max->exponente){
+					ant->siguiente=aux->siguiente;
+					aux->siguiente=pivote;
+					if(pivote==lista.inicio){
+						lista.inicio=aux;
+					}else{
+						apivote->siguiente=aux;
+					}
+					max=aux;
+					pivote=aux;
+					aux=ant->siguiente;
+				}else{
+					aux=aux->siguiente;
+					ant=ant->siguiente;
+				}
+			}
+			apivote=pivote;
+			pivote=pivote->siguiente;
+			max=max->siguiente;
+			if(pivote==NULL){
+				aux=NULL;
+			}else{
+				aux=pivote->siguiente;
+			}
+			ant=pivote;
+		}
+	}
+	printf("Resultado:");
+	visualizarVista(lista);
+}
+
+void simplificar(List*lista){
+	if(lista!=NULL){
+		Nodo*pivote=lista->inicio;
+		Nodo*aux=lista->inicio->siguiente;
+		Nodo*ant=lista->inicio;
+		if(aux!=NULL){
+			while(pivote!=NULL){
+			while(aux!=NULL){
+				if(aux->exponente==pivote->exponente){
+					pivote->coeficiente=pivote->coeficiente+aux->coeficiente;
+					if(pivote->coeficiente<0){
+						pivote->signo=45;
+					}else{
+						pivote->signo=43;
+					}
+					if(aux==lista->final){
+						lista->final=ant;
+					}else{
+						ant->siguiente=aux->siguiente;
+					}
+					free(aux);
+					aux=ant->siguiente;
+				}else{
+					aux=aux->siguiente;
+				    ant=ant->siguiente;
+				}
+			}
+			pivote=pivote->siguiente;
+			if(pivote==NULL){
+			aux=ant=NULL;	
+			}else{
+				aux=pivote->siguiente;
+		    	ant=pivote;
+			}
+		}
+		}
+	}
+}
+
+void unir(List*lista1,List*lista2){
+	Nodo*aux;
+	if(lista2->inicio!=NULL){
+		aux=lista2->inicio;
+		while(lista2->inicio!=NULL){
+			lista2->inicio=lista2->inicio->siguiente;
+			aux->siguiente=lista1->inicio;
+			lista1->inicio=aux;
+		    aux=lista2->inicio;
+	    }
+	}
+}
+
+
+void insertarMonomio(List*lista){
+	Nodo*nuevo=nuevoElemento();
+	if(lista==NULL){
+		lista->inicio=nuevo;
+		lista->final=nuevo;
+	}else{
+		nuevo->siguiente=lista->inicio;
+		lista->inicio=nuevo;
+	}
+}
+
+Nodo*nuevoElemento(){
+	int coeficiente,exponente;
+	Nodo*q=(Nodo*)malloc(sizeof(Nodo));
+	printf("Coeficiente:");
+	scanf("%i",&q->coeficiente);
+	if(q->coeficiente<0){
+		q->coeficiente=q->coeficiente;
+		q->signo=45;
+	}else{
+		q->signo=43;
+	}
+	printf("Exponente:");
+	scanf("%i",&q->exponente);
+	q->siguiente=NULL;
+	return q;
+}
+
+void visualizarVista(List nlista){
+	if(nlista.inicio!=NULL){
+		Nodo* aux=nlista.inicio;
+		while(aux!=NULL){
+			if(aux->coeficiente!=0){
+					if(aux!=nlista.inicio){
+				printf("%c",aux->signo);
+			}else if(aux->signo==45){
+			    printf("%c",aux->signo);
+			}
+			if(aux->coeficiente!=1 && aux->coeficiente!=-1){
+				if(aux->coeficiente<0){
+					printf("%i",aux->coeficiente*-1);
+				}else{
+					printf("%i",aux->coeficiente);
+				}
+			}
+			if(aux->exponente!=1){
+				if(aux->exponente!=0){
+					printf("x^");
+		    	printf("%i",aux->exponente);
+		    }
+		    
+			}else{
+				printf("x");
+			}
+			}
+			aux=aux->siguiente;
+		}
+    }
+}
+
+void cambiarSigno(List*lista){
+	if(lista!=NULL){
+		Nodo*aux=lista->inicio;
+		while(aux!=NULL){
+			aux->coeficiente=aux->coeficiente*-1;
+			if(aux->coeficiente<0){
+				aux->signo=45;
+			}else{
+				aux->signo=43;
+			}
+			aux=aux->siguiente;
+		}
+	}
+}
