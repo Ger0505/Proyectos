@@ -17,6 +17,9 @@ void visualizarVista(ListDob nlista);
 int listaVacia();
 void suma(ListDob list1,ListDob list2);
 void resta(ListDob list1,ListDob list2);
+void multiplicar(ListDob list1,ListDob list2);
+void sumaM(ListDob *list1, ListDob *list2,pelemento aux);
+void eliminar_lista(ListDob*lista);
 pelemento nuevoElemento();
 pelemento inicio=NULL;
 pelemento final=NULL;
@@ -29,13 +32,14 @@ int main(){
 	Lista2.final=NULL;
 	printf("1.- Suma\n");
 	printf("2.- Resta\n");
+	printf("3.- Multiplicacion\n");
 	printf("Escoger Operacion:");
 	do{
 		scanf("%i",&opc);
-	}while(opc<1 | opc>2);
+	}while(opc<1 | opc>3);
 	switch(opc){
 		case 1:
-				printf("Ingresar numero 1:");
+	printf("Ingresar numero 1:");
 	scanf("%i",&a);
 	do{
 		n=a%10;
@@ -77,6 +81,25 @@ int main(){
 		resta(Lista2,Lista1);
 	}
 			break;
+			case 3:
+					printf("Ingresar numero 1:");
+	scanf("%i",&a);
+	do{
+		n=a%10;
+		a=a/10;
+		insertar(&Lista1,n);
+	}while(a!=0);
+	printf("\n");
+	printf("Ingresar numero 2:");
+	scanf("%i",&b);
+	do{
+		n=b%10;
+		b=b/10;
+		insertar(&Lista2,n);
+	}while(b!=0);
+	printf("\n");
+	multiplicar(Lista1,Lista2);
+			break;
 	}
 }
 
@@ -96,16 +119,6 @@ void insertar(ListDob*lista,int dato){
 	}
 }
 
-
-void visualizarVista(ListDob nlista){
-	if(nlista.inicio!=NULL){
-		pelemento aux=nlista.inicio;
-		while(aux!=NULL){
-			printf("%i",aux->dato);
-			aux=aux->siguiente;
-		}
-    }
-}
 void suma(ListDob list1,ListDob list2){
 	pelemento aux1= list1.final;
 	pelemento aux2= list2.final;
@@ -136,10 +149,6 @@ void suma(ListDob list1,ListDob list2){
 	visualizarVista(resultado);
 }
 
-pelemento nuevoElemento(){
-	pelemento q=(pelemento)malloc(sizeof(Nodo));
-	return q;
-}
 void resta(ListDob list1,ListDob list2){
 	pelemento aux1= list1.final;
 	pelemento aux2= list2.final;
@@ -172,4 +181,94 @@ void resta(ListDob list1,ListDob list2){
 		temp=temp->anterior;
 	}
 	visualizarVista(resultado);
+}
+
+void visualizarVista(ListDob nlista){
+	if(nlista.inicio!=NULL){
+		pelemento aux=nlista.inicio;
+		while(aux!=NULL){
+			printf("%i",aux->dato);
+			aux=aux->siguiente;
+		}
+    }
+}
+
+pelemento nuevoElemento(){
+	pelemento q=(pelemento)malloc(sizeof(Nodo));
+	return q;
+}
+
+void sumaM(ListDob *list1,ListDob *list2,pelemento aux){
+	pelemento aux1=aux;
+	pelemento aux2= list2->final;
+	int acarreo=0;
+	int digito=0;
+	while((aux1!=NULL) && (aux2!=NULL)){
+		int suma=aux1->dato + aux2->dato + acarreo;
+		acarreo=suma/10;
+		digito=suma%10;
+		aux1->dato=digito;
+		aux1=aux1->anterior;
+		aux2=aux2->anterior;
+	}
+	pelemento temp=aux1==NULL ? aux2:aux1;
+	while(temp!=NULL){
+		int suma=temp->dato+acarreo;
+		acarreo=suma/10;
+		digito=suma%10;
+		insertar(list1,digito);
+		temp=temp->anterior;
+	}
+	if(acarreo>0){
+		insertar(list1,acarreo);		
+	}
+}
+
+void eliminar_lista(ListDob*lista){
+   pelemento aux;
+   while (lista->inicio=NULL){
+      aux=lista->inicio;
+      lista->inicio=lista->inicio->siguiente;
+      free(aux);
+   }
+}
+
+void multiplicar(ListDob list1,ListDob list2){
+	int i=1;
+	   pelemento aux3;
+	   pelemento aux2= list2.final;
+	   ListDob multiplo,resultado;
+	   resultado.inicio=NULL;
+	   resultado.final=NULL;
+	    while(aux2!=NULL){
+	    	pelemento aux1= list1.final;
+	    	ListDob multiplo;
+			multiplo.inicio=NULL;
+	        multiplo.final=NULL;
+	        int acarreo=0;
+	        int digito=0;
+	        while(aux1!=NULL){
+		        int suma=aux1->dato*aux2->dato+acarreo;
+		        acarreo=suma/10;
+		        digito=suma%10;
+		        insertar(&multiplo,digito);
+		        aux1=aux1->anterior;
+	    }
+	    insertar(&multiplo,acarreo);
+	    if(resultado.inicio==NULL && resultado.final==NULL){
+		pelemento aux=multiplo.final;
+		while(aux!=NULL){
+			insertar(&resultado,aux->dato);
+			aux=aux->anterior;
+		}
+		aux3=resultado.final->anterior;
+	    }else{
+		    sumaM(&resultado,&multiplo,aux3);
+            aux3=aux3->anterior;
+        }
+	    i++;
+	    aux2=aux2->anterior;
+	    eliminar_lista(&multiplo);
+	    }
+	    visualizarVista(resultado);
 }
