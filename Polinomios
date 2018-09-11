@@ -22,6 +22,12 @@ void simplificar(List*lista1);
 void ordenar(List lista);
 void cambiarSigno(List*lista);
 
+void multiplicar(List lista1,List lista2);
+Nodo*buscarAuxiliar(List*lista,Nodo*aux);
+Nodo*nuevoNodo(Nodo*aux1,Nodo*aux2);
+Nodo*buscarFinal(List*lista);
+void eliminarYagregar(List*lista1,List*lista2);
+
 int main(){
 	List Lista1,Lista2,resultado;
 	Lista1.inicio=Lista1.final=NULL;
@@ -34,10 +40,11 @@ int main(){
 	printf("Operacion\n");
 	printf("1. Suma\n");
 	printf("2. Resta\n");
+	printf("3. Multiplicacion\n");
 	do{
-		printf("Escoger Operacion (1-2):");
+		printf("Escoger Operacion (1-3):");
 		scanf("%i",&Ope);
-	}while(Ope<1 | Ope>2);
+	}while(Ope<1 | Ope>3);
 	printf("-----------\n");
 	do{
 		printf("Primer polinomio\n");
@@ -62,13 +69,19 @@ int main(){
 	printf("\n");
 	printf("Polinomio 2:");
 	visualizarVista(Lista2);
-	if(Ope==2){
+	if(Ope==1 | Ope==2){
+		if(Ope==2){
 		cambiarSigno(&Lista2);
+	    }
+	    unir(&Lista1,&Lista2);
+	    simplificar(&Lista1);
+	    printf("\n");
+	    ordenar(Lista1);
+	}else{
+		simplificar(&Lista1);
+		simplificar(&Lista2);
+		multiplicar(Lista1,Lista2);
 	}
-	unir(&Lista1,&Lista2);
-	simplificar(&Lista1);
-	printf("\n");
-	ordenar(Lista1);
 }
 
 
@@ -209,6 +222,12 @@ void visualizarVista(List nlista){
 				}else{
 					printf("%i",aux->coeficiente);
 				}
+			}else if(aux->exponente==0){
+				if(aux->coeficiente<0){
+					printf("%i",aux->coeficiente*-1);
+				}else{
+					printf("%i",aux->coeficiente);
+				}
 			}
 			if(aux->exponente!=1){
 				if(aux->exponente!=0){
@@ -237,5 +256,88 @@ void cambiarSigno(List*lista){
 			}
 			aux=aux->siguiente;
 		}
+	}
+}
+
+void multiplicar(List lista1,List lista2){
+	Nodo*aux2=buscarFinal(&lista2);
+	List multiplo,resultado;
+	multiplo.inicio=resultado.inicio=NULL;
+	multiplo.final=resultado.final=NULL;
+	while(aux2!=NULL){
+		Nodo*aux1=buscarFinal(&lista1);
+		while(aux1!=NULL){
+		Nodo*nuevo=nuevoNodo(aux1,aux2);
+		if(multiplo.inicio==NULL){
+			multiplo.inicio=nuevo;
+			multiplo.final=nuevo;
+		}else{
+			nuevo->siguiente=multiplo.inicio;
+			multiplo.inicio=nuevo;
+		}
+		aux1=buscarAuxiliar(&lista1,aux1);
+	    }
+	    
+	    eliminarYagregar(&multiplo,&resultado);
+	    aux2=buscarAuxiliar(&lista2,aux2);
+	}
+	simplificar(&resultado);
+	printf("\n");
+	printf("Resultado:");
+	ordenar(resultado);
+}
+
+Nodo*nuevoNodo(Nodo*aux1,Nodo*aux2){
+	Nodo*nuevo=(Nodo*)malloc(sizeof(Nodo));
+	nuevo->coeficiente=aux1->coeficiente*aux2->coeficiente;
+	nuevo->exponente=aux1->exponente+aux2->exponente;
+	if(nuevo->coeficiente>0){
+		nuevo->signo=43;
+	}else{
+		nuevo->signo=45;
+	}
+	nuevo->siguiente=NULL;
+	return nuevo;
+}
+
+Nodo*buscarAuxiliar(List*lista,Nodo*aux){
+	 Nodo*prev;
+	if(lista->inicio!=NULL){
+		if(aux!=lista->inicio){
+		  prev=lista->inicio;
+		  while(prev->siguiente!=aux){
+		  prev=prev->siguiente;
+		  }
+		}else{
+			prev=NULL;
+		}
+	}
+	return prev;
+}
+
+Nodo* buscarFinal(List *lista){
+	Nodo*aux;
+	if(lista->inicio!=NULL){
+		aux=lista->inicio;
+		while(aux->siguiente!=NULL){
+			aux=aux->siguiente;
+		}
+	}
+	return aux;
+}
+
+void eliminarYagregar(List*lista1,List*lista2){
+	Nodo*aux=lista1->inicio;
+	while(aux!=NULL){
+		lista1->inicio=lista1->inicio->siguiente;
+		aux->siguiente=NULL;
+		if(lista2==NULL){
+			lista2->inicio=aux;
+			lista2->final=aux;
+		}else{
+			aux->siguiente=lista2->inicio;
+			lista2->inicio=aux;
+		}
+		aux=lista1->inicio;
 	}
 }
